@@ -1,4 +1,5 @@
 package com.example.demo.controllers;
+
 import com.example.demo.models.User;
 import com.example.demo.services.RoleService;
 import com.example.demo.services.UserService;
@@ -7,7 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 
@@ -36,8 +41,11 @@ public class AdminController {
         return "create";
     }
 
-    @PostMapping("/create")
-    public String addUser(@ModelAttribute(value = "user")   User user) {
+    @PostMapping
+    public String addUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors())
+            return "create";
+
         userService.addUser(user);
 
         return "redirect:/admin";
@@ -51,12 +59,15 @@ public class AdminController {
     }
 
     @PostMapping("/edit")
-    public String update(@ModelAttribute(value = "user")  @Valid User user) {
+    public String update(@ModelAttribute(value = "user") @Valid User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors())
+            return "edit";
+
         userService.updateUser(user);
         return "redirect:/admin";
     }
 
-    @PostMapping ("users") //удаление+
+    @PostMapping("users") //удаление+
     public String delete(@RequestParam(value = "id", required = false) Long id) {
         userService.removeUser(id);
         return "redirect:/admin";

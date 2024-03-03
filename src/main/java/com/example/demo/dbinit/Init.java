@@ -38,14 +38,15 @@ public class Init implements ApplicationListener<ContextRefreshedEvent> {
         Role userRole = roleService.findByName(userRoleName);
         Role adminRole = roleService.findByName(adminRoleName);
 
+
         // Если обе роли уже существуют, не создавать их снова
         if (userRole == null && adminRole == null) {
-            // Создание роли USER
+
             userRole = new Role();
             userRole.setName(userRoleName);
             roleService.save(userRole);
 
-            // Создание роли ADMIN
+
             adminRole = new Role();
             adminRole.setName(adminRoleName);
             roleService.save(adminRole);

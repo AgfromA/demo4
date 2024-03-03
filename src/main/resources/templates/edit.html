@@ -10,23 +10,29 @@
 <h1> Edit User</h1>
 
 <form th:method="post" th:action="@{/admin/edit(id=${user.getId()})}" th:object="${user}">
-
-    <label for="username"> Enter username </label>
+    <label for="username"> Enter username: </label>
     <input type="text" id="username" name="username" th:field="*{username}"/>
-
-    <label for="password"> Enter password </label>
+    <div style="color: red" th:if="${#fields.hasErrors('username')}"
+         th:errors="*{username}">Please enter a valid username
+    </div>
+    <br/>
+    <label for="password"> Enter password: </label>
     <input type="text" id="password" name="password" th:field="*{password}"/>
-
-    <label for="email"> Enter email </label>
-    <input type="text" name="email" id="email" th:field="*{email}"/>
+    <div style="color: red" th:if="${#fields.hasErrors('password')}"
+         th:errors="*{password}">Please enter a valid username
+    </div>
+    <br/>
+    <label for="email"> Enter email: </label>
+    <input type="text" id="email" name="email" th:field="*{email}"/>
+    <div style="color: red" th:if="${#fields.hasErrors('email')}"
+         th:errors="*{email}">Please enter a valid username
+    </div>
     <br/>
     <label>Select role:
-        <input type="checkbox" name="roles"
-               th:each="roles : ${role}"
-               th:value="${roles.getId()}"
-               th:text="${roles.getName().replace('ROLE_', '') + ' '}"
-               th:field="*{roles}"
-        />
+        <div>
+            <label><input type="checkbox" name="roles" value="2"> Admin</label>
+            <label><input type="checkbox" name="roles" value="1"> User</label>
+        </div>
     </label>
     <br>
 
