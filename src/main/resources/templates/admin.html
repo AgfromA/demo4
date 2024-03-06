@@ -317,7 +317,7 @@
 
                                                     <option th:each="role:${roles}"
                                                             th:value="${role.getId()}"
-                                                            th:text="${role.toString()}">
+                                                            th:text="${#strings.replace(role.toString(), 'ROLE_', '')}">
                                                     </option>
                                                 </select>
                                                 <br>
