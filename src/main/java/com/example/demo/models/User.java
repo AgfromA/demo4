@@ -1,6 +1,10 @@
 package com.example.demo.models;
 
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,9 +19,7 @@ import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -31,10 +33,15 @@ public class User implements UserDetails {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     @NotEmpty(message = "Name should not be empty")
     @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters")
     private String username;
+    @Column(name = "lastname")
+    @NotEmpty(message = "Lastname should not be empty")
+    @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters")
+    private String lastname;
+
     @Column(name = "password")
     @Size(min = 3, max = 300, message = "Pass need be right ")
     @NotEmpty
@@ -43,7 +50,14 @@ public class User implements UserDetails {
     @NotEmpty(message = "Email should not be empty")
     @Email
     private String email;
+
+    @Min(1)
+    @Max(150)
+    @Column(name = "age")
+    private int age;
     @ManyToMany
+    @LazyCollection(LazyCollectionOption.EXTRA)
+    @Fetch(FetchMode.JOIN)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -52,16 +66,35 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String username, String password, String email, Set<Role> roles) {
+    public User(Long id, String username, String password, String email, Set<Role> roles, String lastname, int age) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.roles = roles;
+        this.lastname = lastname;
+        this.age = age;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     @Override
@@ -133,12 +166,14 @@ public class User implements UserDetails {
         User user = (User) o;
         return Objects.equals(id, user.id) && Objects.equals(username, user.username)
                 && Objects.equals(password, user.password)
+                && Objects.equals(lastname, user.lastname)
+                && Objects.equals(age, user.age)
                 && Objects.equals(email, user.email)
                 && Objects.equals(roles, user.roles);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password, email, roles);
+        return Objects.hash(id, username, password,lastname,age, email, roles);
     }
 }

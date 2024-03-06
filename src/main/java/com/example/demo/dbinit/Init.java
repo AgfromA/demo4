@@ -55,17 +55,22 @@ public class Init implements ApplicationListener<ContextRefreshedEvent> {
             Set<Role> userRoles = new HashSet<>(Arrays.asList(userRole));
             Set<Role> adminRoles = new HashSet<>(Arrays.asList(adminRole));
 
+
             User admin = new User();
             admin.setUsername("admin");
             admin.setPassword(passwordEncoder.encode("admin"));
+            admin.setAge(18);
             admin.setEmail("admin@mail.ru");
             admin.setRoles(adminRoles);
+            admin.setLastname("Molotov");
 
             User user = new User();
             user.setUsername("user");
             user.setPassword(passwordEncoder.encode("user"));
+            user.setAge(25);
             user.setEmail("user@mail.ru");
             user.setRoles(userRoles);
+            user.setLastname("Molotov");
 
             userRepository.save(admin);
             userRepository.save(user);

@@ -8,13 +8,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Controller
 @RequestMapping("/admin")
@@ -28,47 +27,38 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-    @GetMapping("")
-    public String userList(Model model) {
-        model.addAttribute("usersList", userService.allUsers());
-        return "index";
+
+    @GetMapping
+    public String showAllUser(Model model, Principal principal) {
+        model.addAttribute("users", userService.allUsers());
+        model.addAttribute("user", userService.findUserByUsername(principal.getName()));
+        model.addAttribute("roles", roleService.getAllRole());
+        return "admin";
     }
 
-    @GetMapping("/create")
-    public String create(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("role", roleService.getAllRole());
-        return "create";
-    }
-
-    @PostMapping
-    public String addUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors())
-            return "create";
-
+    @PostMapping("/add")
+    public String saveUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, Model model) {
+        model.addAttribute("roles", roleService.getAllRole());
+        if (bindingResult.hasErrors()){
+            return "redirect:/admin";
+        }
         userService.addUser(user);
-
         return "redirect:/admin";
-    }
-
-    @GetMapping("/edit")
-    public String edit(@RequestParam(value = "id", required = false) Long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        model.addAttribute("role", roleService.getAllRole());
-        return "edit";
     }
 
     @PostMapping("/edit")
-    public String update(@ModelAttribute(value = "user") @Valid User user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors())
-            return "edit";
+    public String update(@ModelAttribute(value = "user") @Valid User user, BindingResult result) {
+        if (result.hasErrors())
+            return "redirect:/admin";
 
-        userService.updateUser(user);
+
+
+        userService.updateUser(user, user.getPassword());
         return "redirect:/admin";
     }
 
-    @PostMapping("users") //удаление+
-    public String delete(@RequestParam(value = "id", required = false) Long id) {
+    @PostMapping("/users")
+    public String deleteUser(@RequestParam("id") Long id) {
         userService.removeUser(id);
         return "redirect:/admin";
     }

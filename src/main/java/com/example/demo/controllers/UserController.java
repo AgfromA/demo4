@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import java.security.Principal;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/user")
@@ -24,9 +25,14 @@ public class UserController {
 
     @GetMapping(value = "")
     public String userInfo(Model model, Principal principal) {
-        User user = userRepository.findUserByUsername(principal.getName());
-        model.addAttribute("user", user);
+        Optional<User> userOptional = userRepository.findUserByUsername(principal.getName());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            model.addAttribute("user", user);
+        } else {
+            return "redirect:/login";
+        }
         return "user";
-
     }
+
 }
