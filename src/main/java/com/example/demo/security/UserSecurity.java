@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+
 import com.example.demo.models.User;
 import com.example.demo.services.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,11 +21,11 @@ public class UserSecurity implements UserDetailsService {
     @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.findUserByUsername(username);
+        User user = userService.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException(String.format("User '%s' not found", username));
         }
-        return new User(user.getId(), user.getUsername(),user.getPassword(), user.getEmail(), user.getRoles(), user.getLastname(),  user.getAge());
+        return new User(user.getId(), user.getName(), user.getSurname(), user.getAge(),user.getUsername(), user.getPassword(), user.getRoles());
     }
 
 }

@@ -3,72 +3,83 @@ package com.example.demo.services;
 import com.example.demo.models.User;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import javax.persistence.EntityNotFoundException;
+
 import java.util.List;
 
 
-    @Service
-    public class UserServiceImpl implements UserService {
-        private final UserRepository userRepository;
-        private final PasswordEncoder passwordEncoder;
+@Service
+public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-        @Autowired
-        public UserServiceImpl(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
-            this.userRepository = userRepository;
-            this.passwordEncoder = passwordEncoder;
-        }
 
-        @Override
-        public List<User> allUsers() {
-            return userRepository.findAll();
-        }
-
-        @Override
-        public User getUserById(Long id) {
-            return userRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
-        }
-
-        @Override
-        public User findUserByUsername(String username) {
-            return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found"));
-        }
-
-        @Transactional
-        @Override
-        public void addUser(User user)  {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-                userRepository.save(user);
-        }
-
-        @Transactional
-        @Override
-        public void removeUser(Long id) {
-            if (!userRepository.existsById(id)) {
-                throw new EntityNotFoundException("User with id " + id + " not found");
-            }
-            userRepository.deleteById(id);
-        }
-
-        @Transactional
-        @Override
-        public void updateUser(User user, String newPassword) {
-            if (!userRepository.existsById(user.getId())) {
-                throw new EntityNotFoundException("User with id " + user.getId() + " not found");
-            }
-            if (!passwordEncoder.matches(newPassword, user.getPassword())) {
-                // Пароль изменился, перекодируем его
-                user.setPassword(passwordEncoder.encode(newPassword));
-            }
-            userRepository.save(user);
-        }
-
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User findByUsername(@Param("username") String username) {
+        return userRepository.findByUsername(username);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void saveUser(User user) {
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getUserById(Integer id) {
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Invalid user Id:" + id));
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Integer id) {
+        User user1 = this.getUserById(id);
+        if (user1 == null) {
+            throw new EntityNotFoundException("User with this id not found");
+        }
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+
+        User userById = userRepository.getById(user.getId());
+
+        if (!user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+            user.setPassword(userById.getPassword());
+        }
+        userRepository.save(user);
+    }
+}
+
+
+
+
+

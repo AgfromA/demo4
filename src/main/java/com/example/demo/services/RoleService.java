@@ -1,15 +1,20 @@
 package com.example.demo.services;
-
 import com.example.demo.models.Role;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
-public interface RoleService
-{ List<Role> getAllRole();
-    Role findByName(String name);
+
+public interface RoleService {
+
+
+    @Transactional
     void save(Role role);
-    void add(Role role);
+
+    List<Role> getListRoles();
+
+    Role findByName(String name);
+
+    Role getRoleById(Integer id);
 
 }

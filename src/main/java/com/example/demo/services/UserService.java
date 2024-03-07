@@ -1,24 +1,21 @@
 package com.example.demo.services;
 
+
 import com.example.demo.models.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
 
 public interface UserService {
-     List<User> allUsers();
+    User findByUsername(String username);
 
-   User getUserById(Long id);
+    List<User> getAllUsers();
 
-     User findUserByUsername(String username);
+    void saveUser(User user);
 
-    void  addUser(User user);
+    User getUserById(Integer id);
 
-     void updateUser(User user, String newPassword);
+    void deleteUser(Integer id);
 
-   void removeUser(Long id);
-
+    void updateUser(User user);
 
 }

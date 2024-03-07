@@ -57,20 +57,20 @@ public class Init implements ApplicationListener<ContextRefreshedEvent> {
 
 
             User admin = new User();
-            admin.setUsername("admin");
+            admin.setName("admin");
             admin.setPassword(passwordEncoder.encode("admin"));
             admin.setAge(18);
-            admin.setEmail("admin@mail.ru");
+            admin.setUsername("admin@mail.ru");
             admin.setRoles(adminRoles);
-            admin.setLastname("Molotov");
+            admin.setSurname("Molotov");
 
             User user = new User();
-            user.setUsername("user");
+            user.setName("user");
             user.setPassword(passwordEncoder.encode("user"));
             user.setAge(25);
-            user.setEmail("user@mail.ru");
+            user.setUsername("user@mail.ru");
             user.setRoles(userRoles);
-            user.setLastname("Molotov");
+            user.setSurname("Molotov");
 
             userRepository.save(admin);
             userRepository.save(user);

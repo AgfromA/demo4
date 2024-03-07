@@ -2,17 +2,17 @@ package com.example.demo.services;
 
 import com.example.demo.models.Role;
 import com.example.demo.repositories.RoleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+
 
 @Service
 public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
 
-    @Autowired
     public RoleServiceImpl(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
@@ -23,17 +23,19 @@ public class RoleServiceImpl implements RoleService {
 
     }
     @Override
-    public List<Role> getAllRole() {
+    @Transactional(readOnly = true)
+    public List<Role> getListRoles() {
         return roleRepository.findAll();
     }
-
     @Override
     public Role findByName(String name) {
         return roleRepository.findByName(name);
     }
-
     @Override
-    public void add(Role role) {
-        roleRepository.save(role);
+    @Transactional(readOnly = true)
+    public Role getRoleById(Integer id) {
+        Optional<Role> roleOptional = roleRepository.findById(id);
+        return roleOptional.orElse(null);
     }
+
 }
